@@ -14,18 +14,22 @@
     <input type="text" id="titulo" placeholder="Título do Filme">
     <input type="text" id="sinopse" placeholder="Sinopse">
 
-    <select id="genero" multiple size="5">
-      <option value="Ação">Ação</option>
-      <option value="Comédia">Comédia</option>
-      <option value="Drama">Drama</option>
-      <option value="Terror">Terror</option>
-      <option value="Romance">Romance</option>
-      <option value="Animação">Animação</option>
-      <option value="Infantil">Infantil</option>
-      <option value="Ficção Científica">Ficção Científica</option>
-      <option value="Familia">Familia</option>
-      <option value="Documentário">Documentário</option>
-    </select>
+ <div id="genero-container">
+  <div id="genero-toggle" onclick="toggleGenero()">Selecionar Gêneros ⬇</div>
+  <div id="genero-opcoes" class="oculto">
+    <label><input type="checkbox" value="Ação"> Ação</label><br>
+    <label><input type="checkbox" value="Comédia"> Comédia</label><br>
+    <label><input type="checkbox" value="Drama"> Drama</label><br>
+    <label><input type="checkbox" value="Terror"> Terror</label><br>
+    <label><input type="checkbox" value="Romance"> Romance</label><br>
+    <label><input type="checkbox" value="Animação"> Animação</label><br>
+    <label><input type="checkbox" value="Infantil"> Infantil</label><br>
+    <label><input type="checkbox" value="Ficção Científica"> Ficção Científica</label><br>
+    <label><input type="checkbox" value="Familia"> Familia</label><br>
+    <label><input type="checkbox" value="Documentário"> Documentário</label>
+  </div>
+</div>
+
 
     <input type="text" id="capa" placeholder="URL da Capa">
     <input type="text" id="trailer" placeholder="URL do Trailer do YouTube">
