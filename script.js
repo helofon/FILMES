@@ -27,10 +27,10 @@ function atualizarEstrelas() {
 function adicionarOuSalvarFilme() {
   const titulo = document.getElementById('titulo').value;
   const sinopse = document.getElementById('sinopse').value;
-  const genero = document.getElementById('genero');
+  const generoSelect = document.getElementById("genero");
+  const generosSelecionados = Array.from(generoSelect.selectedOptions).map(opt => opt.value);
   const capa = document.getElementById('capa').value;
   const trailer = document.getElementById('trailer').value;
-  const generosSelecionados = Array.from(genero.selectedOptions).map(opt => opt.value);
 
   const filme = {
     titulo,
@@ -130,9 +130,9 @@ function limparCampos() {
   document.getElementById('sinopse').value = '';
   document.getElementById('capa').value = '';
   document.getElementById('trailer').value = '';
- const generoSelect = document.getElementById('genero');
-Array.from(generoSelect.options).forEach(option => {
-  option.selected = false;
+  const generoSelect = document.getElementById('genero');
+  Array.from(generoSelect.options).forEach(option => option.selected = false);
+
 });
 
   ratingSelecionado = 0;
