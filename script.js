@@ -119,3 +119,28 @@ function limparCampos() {
   ratingSelecionado = 0;
   atualizarEstrelas();
 }
+
+function filtrarPorGenero() {
+  const termo = document.getElementById('busca-genero').value.toLowerCase();
+  const container = document.getElementById('filmes-container');
+  container.innerHTML = '';
+
+  filmes
+    .filter(filme => {
+      return filme.genero.some(g => g.toLowerCase().includes(termo));
+    })
+    .forEach((filme, index) => {
+      const estrelas = '★'.repeat(filme.rating || 0) + '☆'.repeat(5 - (filme.rating || 0));
+      container.innerHTML += `
+        <div class="filme">
+          <h3>${filme.titulo}</h3>
+          <p>${filme.sinopse}</p>
+          <p><strong>Gêneros:</strong> ${filme.genero.join(', ')}</p>
+          <p><strong>Rating:</strong> ${estrelas}</p>
+          <img src="${filme.capa}" alt="${filme.titulo}">
+          <p><a href="${filme.trailer}" target="_blank">Assistir Trailer</a></p>
+          <input type="checkbox" value="${index}"> Selecionar
+        </div>
+      `;
+    });
+}
