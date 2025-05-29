@@ -27,10 +27,10 @@ function atualizarEstrelas() {
 function adicionarOuSalvarFilme() {
   const titulo = document.getElementById('titulo').value;
   const sinopse = document.getElementById('sinopse').value;
-  const generoSelect = document.getElementById('genero');
+  const genero = document.getElementById('genero');
   const capa = document.getElementById('capa').value;
   const trailer = document.getElementById('trailer').value;
-  const generosSelecionados = Array.from(generoSelect.selectedOptions).map(opt => opt.value);
+  const generosSelecionados = Array.from(genero.selectedOptions).map(opt => opt.value);
 
   const filme = {
     titulo,
