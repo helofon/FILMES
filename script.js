@@ -1,14 +1,21 @@
+const firebaseConfig = {
+  apiKey: "AIzaSyAsjk8k0wS-CtyyDTUhtfvwznu1EhrITWk",
+  authDomain: "site-filmes-a8770.firebaseapp.com",
+  projectId: "site-filmes-a8770",
+  storageBucket: "site-filmes-a8770.firebasestorage.app",
+  messagingSenderId: "6675724716",
+  appId: "1:6675724716:web:279205a26c9312e8bc6209"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 let filmes = [];
-let editandoIndex = -1;
 let ratingSelecionado = 0;
 
-window.onload = function () {
-  const filmesSalvos = localStorage.getItem("filmes");
-  if (filmesSalvos) {
-    filmes = JSON.parse(filmesSalvos);
-    exibirFilmes();
-  }
-
+// Estrelas
+document.addEventListener("DOMContentLoaded", function () {
+  carregarFilmes();
   document.querySelectorAll('.estrela').forEach(estrela => {
     estrela.addEventListener('click', () => {
       ratingSelecionado = parseInt(estrela.getAttribute('data-value'));
@@ -16,13 +23,17 @@ window.onload = function () {
     });
   });
 
-  document.addEventListener('click', function(event) {
+  document.addEventListener('click', function (event) {
     const container = document.getElementById("genero-container");
     if (!container.contains(event.target)) {
       document.getElementById("genero-opcoes").classList.add("oculto");
     }
   });
-};
+});
+
+function toggleGenero() {
+  document.getElementById("genero-opcoes").classList.toggle("oculto");
+}
 
 function atualizarEstrelas() {
   document.querySelectorAll('.estrela').forEach(estrela => {
@@ -31,20 +42,13 @@ function atualizarEstrelas() {
   });
 }
 
-function toggleGenero() {
-  document.getElementById("genero-opcoes").classList.toggle("oculto");
-}
-
 function adicionarOuSalvarFilme() {
   const titulo = document.getElementById('titulo').value;
   const sinopse = document.getElementById('sinopse').value;
   const capa = document.getElementById('capa').value;
   const trailer = document.getElementById('trailer').value;
-
   const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
-  const generosSelecionados = Array.from(generoCheckboxes)
-    .filter(c => c.checked)
-    .map(c => c.value);
+  const generosSelecionados = Array.from(generoCheckboxes).filter(c => c.checked).map(c => c.value);
 
   const filme = {
     titulo,
@@ -55,16 +59,22 @@ function adicionarOuSalvarFilme() {
     rating: ratingSelecionado
   };
 
-  if (editandoIndex >= 0) {
-    filmes[editandoIndex] = filme;
-    editandoIndex = -1;
-  } else {
-    filmes.push(filme);
-  }
+  db.collection("filmes").add(filme).then(() => {
+    carregarFilmes();
+    limparCampos();
+  });
+}
 
-  localStorage.setItem("filmes", JSON.stringify(filmes));
-  exibirFilmes();
-  limparCampos();
+function carregarFilmes() {
+  db.collection("filmes").get().then(snapshot => {
+    filmes = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      data.id = doc.id;
+      filmes.push(data);
+    });
+    exibirFilmes();
+  });
 }
 
 function exibirFilmes() {
@@ -80,59 +90,24 @@ function exibirFilmes() {
         <p><strong>Rating:</strong> ${estrelas}</p>
         <img src="${filme.capa}" alt="${filme.titulo}">
         <p><a href="${filme.trailer}" target="_blank">Assistir Trailer</a></p>
-        <input type="checkbox" value="${index}"> Selecionar<br>
-        <button onclick="editarFilme(${index})">Editar</button>
-        <button onclick="removerFilme(${index})">Remover</button>
+        <input type="checkbox" value="${index}"> Selecionar
       </div>
     `;
   });
 }
 
-function editarFilme(index) {
-  const filme = filmes[index];
-  document.getElementById('titulo').value = filme.titulo;
-  document.getElementById('sinopse').value = filme.sinopse;
-  document.getElementById('capa').value = filme.capa;
-  document.getElementById('trailer').value = filme.trailer;
-  ratingSelecionado = filme.rating || 0;
-  atualizarEstrelas();
-
-  document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
-    c.checked = filme.genero.includes(c.value);
-  });
-
-  editandoIndex = index;
-}
-
-function removerFilme(index) {
-  if (confirm("Tem certeza que deseja remover este filme?")) {
-    filmes.splice(index, 1);
-    localStorage.setItem("filmes", JSON.stringify(filmes));
-    exibirFilmes();
-  }
-}
-
-function limparTodos() {
-  if (confirm("Tem certeza que deseja apagar todos os filmes?")) {
-    filmes = [];
-    localStorage.removeItem("filmes");
-    exibirFilmes();
-  }
-}
-
 function sortearFilme() {
   const selecionados = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-    .map(checkbox => filmes[checkbox.value]);
+    .map(c => filmes[c.value]);
 
-  const resultado = document.getElementById('resultado');
-
+  const resultado = document.getElementById("resultado");
   if (selecionados.length === 0) {
-    resultado.innerText = 'Nenhum filme selecionado!';
+    resultado.innerText = "Nenhum filme selecionado!";
     return;
   }
 
-  const filmeSorteado = selecionados[Math.floor(Math.random() * selecionados.length)];
-  resultado.innerText = `🎬 Filme Sorteado: ${filmeSorteado.titulo}`;
+  const sorteado = selecionados[Math.floor(Math.random() * selecionados.length)];
+  resultado.innerText = `🎬 Filme Sorteado: ${sorteado.titulo}`;
 }
 
 function limparCampos() {
