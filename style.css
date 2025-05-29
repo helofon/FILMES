@@ -1,5 +1,3 @@
-/* Paleta: lilás, lavanda, violeta */
-
 body {
   font-family: 'Segoe UI', sans-serif;
   background-color: #f9f6ff;
@@ -125,4 +123,3 @@ input[type="checkbox"] {
 .oculto {
   display: none;
 }
-

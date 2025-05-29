@@ -15,6 +15,13 @@ window.onload = function () {
       atualizarEstrelas();
     });
   });
+
+  document.addEventListener('click', function(event) {
+    const container = document.getElementById("genero-container");
+    if (!container.contains(event.target)) {
+      document.getElementById("genero-opcoes").classList.add("oculto");
+    }
+  });
 };
 
 function atualizarEstrelas() {
@@ -27,22 +34,17 @@ function atualizarEstrelas() {
 function toggleGenero() {
   document.getElementById("genero-opcoes").classList.toggle("oculto");
 }
-  document.addEventListener('click', function(event) {
-  const container = document.getElementById("genero-container");
-  if (!container.contains(event.target)) {
-    document.getElementById("genero-opcoes").classList.add("oculto");
-  }
-});
 
 function adicionarOuSalvarFilme() {
   const titulo = document.getElementById('titulo').value;
   const sinopse = document.getElementById('sinopse').value;
-  const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
-  const generosSelecionados = Array.from(generoCheckboxes)
-      .filter(c => c.checked)
-      .map(c => c.value);
   const capa = document.getElementById('capa').value;
   const trailer = document.getElementById('trailer').value;
+
+  const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
+  const generosSelecionados = Array.from(generoCheckboxes)
+    .filter(c => c.checked)
+    .map(c => c.value);
 
   const filme = {
     titulo,
@@ -94,8 +96,9 @@ function editarFilme(index) {
   document.getElementById('trailer').value = filme.trailer;
   ratingSelecionado = filme.rating || 0;
   atualizarEstrelas();
+
   document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
-  c.checked = filme.genero.includes(c.value);
+    c.checked = filme.genero.includes(c.value);
   });
 
   editandoIndex = index;
@@ -138,10 +141,6 @@ function limparCampos() {
   document.getElementById('capa').value = '';
   document.getElementById('trailer').value = '';
   document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => c.checked = false);
-
-
-});
-
   ratingSelecionado = 0;
   atualizarEstrelas();
 }
