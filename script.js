@@ -144,3 +144,35 @@ function filtrarPorGenero() {
       `;
     });
 }
+
+function buscarFilmeOMDb() {
+  const titulo = document.getElementById('titulo').value;
+  if (!titulo.trim()) return alert("Digite o nome do filme");
+
+  fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(titulo)}&apikey=7a859aa5`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.Response === "False") {
+        alert("Filme não encontrado!");
+        return;
+      }
+
+      document.getElementById('titulo').value = data.Title || "";
+      document.getElementById('sinopse').value = data.Plot || "";
+      document.getElementById('capa').value = data.Poster || "";
+      document.getElementById('trailer').value = "";
+
+      const generos = (data.Genre || "").split(',').map(g => g.trim());
+      document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
+        c.checked = generos.includes(c.value);
+      });
+
+      const notaIMDb = parseFloat(data.imdbRating);
+      ratingSelecionado = isNaN(notaIMDb) ? 0 : Math.round(notaIMDb / 2);
+      atualizarEstrelas();
+    })
+    .catch(err => {
+      console.error("Erro ao buscar filme:", err);
+      alert("Erro ao buscar filme.");
+    });
+}
