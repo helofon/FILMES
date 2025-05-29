@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   document.getElementById('buscar-filme').addEventListener('click', buscarFilme);
+  document.getElementById('filtrar-generos').addEventListener('click', filtrarPorGeneros);
 });
 
 function toggleGenero() {
@@ -76,14 +77,14 @@ function carregarFilmes() {
       data.id = doc.id;
       filmes.push(data);
     });
-    exibirFilmes();
+    exibirFilmes(filmes);
   });
 }
 
-function exibirFilmes() {
+function exibirFilmes(listaFilmes) {
   const container = document.getElementById('filmes-container');
   container.innerHTML = '';
-  filmes.forEach((filme, index) => {
+  listaFilmes.forEach((filme, index) => {
     const estrelas = '★'.repeat(filme.rating || 0) + '☆'.repeat(5 - (filme.rating || 0));
     container.innerHTML += `
       <div class="filme">
@@ -93,34 +94,9 @@ function exibirFilmes() {
         <p><strong>Rating:</strong> ${estrelas}</p>
         <img src="${filme.capa}" alt="${filme.titulo}">
         <p><a href="${filme.trailer}" target="_blank">Assistir Trailer</a></p>
-        <input type="checkbox" value="${index}"> Selecionar
       </div>
     `;
   });
-}
-
-function sortearFilme() {
-  const selecionados = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-    .map(c => filmes[c.value]);
-
-  const resultado = document.getElementById("resultado");
-  if (selecionados.length === 0) {
-    resultado.innerText = "Nenhum filme selecionado!";
-    return;
-  }
-
-  const sorteado = selecionados[Math.floor(Math.random() * selecionados.length)];
-  resultado.innerText = `🎬 Filme Sorteado: ${sorteado.titulo}`;
-}
-
-function limparCampos() {
-  document.getElementById('titulo').value = '';
-  document.getElementById('sinopse').value = '';
-  document.getElementById('capa').value = '';
-  document.getElementById('trailer').value = '';
-  document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => c.checked = false);
-  ratingSelecionado = 0;
-  atualizarEstrelas();
 }
 
 function buscarFilme() {
@@ -147,4 +123,25 @@ function buscarFilme() {
       console.error("Erro ao buscar filme:", error);
       alert('Erro ao buscar informações do filme!');
     });
+}
+
+function limparCampos() {
+  document.getElementById('titulo').value = '';
+  document.getElementById('sinopse').value = '';
+  document.getElementById('capa').value = '';
+  document.getElementById('trailer').value = '';
+  document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => c.checked = false);
+  ratingSelecionado = 0;
+  atualizarEstrelas();
+}
+
+function filtrarPorGeneros() {
+  const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
+  const generosSelecionados = Array.from(generoCheckboxes).filter(c => c.checked).map(c => c.value);
+  if (generosSelecionados.length === 0) {
+    alert('Selecione pelo menos um gênero!');
+    return;
+  }
+  const filmesFiltrados = filmes.filter(filme => filme.genero.some(g => generosSelecionados.includes(g)));
+  exibirFilmes(filmesFiltrados);
 }
