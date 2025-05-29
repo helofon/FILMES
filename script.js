@@ -10,9 +10,7 @@ const firebaseConfig = {
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs, addDoc } from "firebase/firestore";
 
-firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
@@ -48,7 +46,7 @@ function atualizarEstrelas() {
   });
 }
 
-function adicionarOuSalvarFilme() {
+async function adicionarOuSalvarFilme() {
   const titulo = document.getElementById('titulo').value;
   const sinopse = document.getElementById('sinopse').value;
   const capa = document.getElementById('capa').value;
@@ -56,8 +54,6 @@ function adicionarOuSalvarFilme() {
   const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
   const generosSelecionados = Array.from(generoCheckboxes).filter(c => c.checked).map(c => c.value);
 
-console.log({ titulo, sinopse, capa, trailer });
-  
   const filme = {
     titulo,
     sinopse,
@@ -67,11 +63,17 @@ console.log({ titulo, sinopse, capa, trailer });
     rating: ratingSelecionado
   };
 
-  db.collection("filmes").add(filme).then(() => {
+  try {
+    const filmesCollection = collection(db, "filmes");
+    await addDoc(filmesCollection, filme);
     carregarFilmes();
     limparCampos();
-  });
+  } catch (err) {
+    console.error("Erro ao salvar filme:", err);
+    alert("Erro ao salvar o filme no banco de dados.");
+  }
 }
+
 
 async function carregarFilmes() {
   const filmesCollection = collection(db, "filmes");
@@ -167,11 +169,13 @@ function buscarFilmeOMDb() {
         return;
       }
 
+      // Atualizar os campos com os dados recebidos
       document.getElementById('titulo').value = data.Title || "";
       document.getElementById('sinopse').value = data.Plot || "";
       document.getElementById('capa').value = data.Poster || "";
       document.getElementById('trailer').value = "";
 
+      // Configurar os gêneros e avaliação
       const generos = (data.Genre || "").split(',').map(g => g.trim());
       document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
         c.checked = generos.includes(c.value);
@@ -183,6 +187,6 @@ function buscarFilmeOMDb() {
     })
     .catch(err => {
       console.error("Erro ao buscar filme:", err);
-      alert("Erro ao buscar filme.");
+      alert("Erro ao buscar informações do filme.");
     });
 }
