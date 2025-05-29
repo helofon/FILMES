@@ -83,12 +83,15 @@ function editarFilme(index) {
   ratingSelecionado = filme.rating || 0;
   atualizarEstrelas();
 
-  const generoSelect = document.getElementById('genero');
-  Array.from(generoSelect.options).forEach(option => {
-    option.selected = filme.genero.includes(option.value);
-  });
+const generoSelect = document.getElementById('genero');
+Array.from(generoSelect.options).forEach(option => {
+  option.selected = filme.genero.includes(option.value);
+});
 
   editandoIndex = index;
+
+
+
 }
 
 function removerFilme(index) {
@@ -127,7 +130,11 @@ function limparCampos() {
   document.getElementById('sinopse').value = '';
   document.getElementById('capa').value = '';
   document.getElementById('trailer').value = '';
-  document.getElementById('genero').selectedIndex = -1;
+ const generoSelect = document.getElementById('genero');
+Array.from(generoSelect.options).forEach(option => {
+  option.selected = false;
+});
+
   ratingSelecionado = 0;
   atualizarEstrelas();
 }
