@@ -12,7 +12,6 @@ import { getFirestore, collection, getDocs, addDoc } from "firebase/firestore";
 
 const db = firebase.firestore();
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
 let filmes = [];
 let ratingSelecionado = 0;
@@ -46,22 +45,29 @@ function atualizarEstrelas() {
   });
 }
 
-async function adicionarOuSalvarFilme() {
+function adicionarOuSalvarFilme() {
   const titulo = document.getElementById('titulo').value;
   const sinopse = document.getElementById('sinopse').value;
   const capa = document.getElementById('capa').value;
   const trailer = document.getElementById('trailer').value;
-  const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
-  const generosSelecionados = Array.from(generoCheckboxes).filter(c => c.checked).map(c => c.value);
 
   const filme = {
     titulo,
     sinopse,
-    genero: generosSelecionados,
     capa,
     trailer,
     rating: ratingSelecionado
   };
+
+  db.collection("filmes").add(filme)
+    .then(() => {
+      console.log("Filme adicionado com sucesso!");
+      carregarFilmes();
+    })
+    .catch((error) => {
+      console.error("Erro ao salvar o filme:", error);
+    });
+}
 
   try {
     const filmesCollection = collection(db, "filmes");
