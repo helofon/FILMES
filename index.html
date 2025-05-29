@@ -13,10 +13,31 @@
 
   <div>
     <input type="text" id="titulo" placeholder="Título do Filme">
-    <input type="text" id="sinopse" placeholder="Sinopse">
-    <input type="text" id="genero" placeholder="Gênero">
-    <input type="text" id="capa" placeholder="URL da Capa">
-    <input type="text" id="trailer" placeholder="URL do Trailer do YouTube">
+<input type="text" id="sinopse" placeholder="Sinopse">
+
+<select id="genero" multiple size="5">
+  <option value="Ação">Ação</option>
+  <option value="Comédia">Comédia</option>
+  <option value="Drama">Drama</option>
+  <option value="Terror">Terror</option>
+  <option value="Romance">Romance</option>
+  <option value="Animação">Animação</option>
+  <option value="Ficção Científica">Ficção Científica</option>
+  <option value="Documentário">Documentário</option>
+</select>
+
+<input type="text" id="capa" placeholder="URL da Capa">
+<input type="text" id="trailer" placeholder="URL do Trailer do YouTube">
+
+<div id="rating-container">
+  Avaliação:
+  <span class="estrela" data-value="1">&#9734;</span>
+  <span class="estrela" data-value="2">&#9734;</span>
+  <span class="estrela" data-value="3">&#9734;</span>
+  <span class="estrela" data-value="4">&#9734;</span>
+  <span class="estrela" data-value="5">&#9734;</span>
+</div>
+
     <button onclick="adicionarOuSalvarFilme()">Adicionar Filme</button>
     <button onclick="limparTodos()">Limpar Todos os Filmes</button>
   </div>
