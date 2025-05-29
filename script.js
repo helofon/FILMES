@@ -7,9 +7,7 @@ const firebaseConfig = {
   appId: "1:6675724716:web:279205a26c9312e8bc6209"
 };
 
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs, addDoc } from "firebase/firestore";
-
+firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const app = initializeApp(firebaseConfig);
 
@@ -50,10 +48,13 @@ function adicionarOuSalvarFilme() {
   const sinopse = document.getElementById('sinopse').value;
   const capa = document.getElementById('capa').value;
   const trailer = document.getElementById('trailer').value;
+  const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
+  const generosSelecionados = Array.from(generoCheckboxes).filter(c => c.checked).map(c => c.value);
 
   const filme = {
     titulo,
     sinopse,
+    genero: generosSelecionados,
     capa,
     trailer,
     rating: ratingSelecionado
@@ -67,7 +68,6 @@ function adicionarOuSalvarFilme() {
     .catch((error) => {
       console.error("Erro ao salvar o filme:", error);
     });
-}
 
   try {
     const filmesCollection = collection(db, "filmes");
@@ -81,17 +81,17 @@ function adicionarOuSalvarFilme() {
 }
 
 
-async function carregarFilmes() {
-  const filmesCollection = collection(db, "filmes");
-  const snapshot = await getDocs(filmesCollection);
-
-  filmes = [];
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    data.id = doc.id;
-    filmes.push(data);
+function carregarFilmes() {
+  db.collection("filmes").get().then(snapshot => {
+    filmes = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      data.id = doc.id;
+      filmes.push(data);
+    });
+    exibirFilmes();
   });
-
+}
   exibirFilmes();
 }
 
