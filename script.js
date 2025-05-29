@@ -56,6 +56,8 @@ function adicionarOuSalvarFilme() {
   const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
   const generosSelecionados = Array.from(generoCheckboxes).filter(c => c.checked).map(c => c.value);
 
+console.log({ titulo, sinopse, capa, trailer });
+  
   const filme = {
     titulo,
     sinopse,
