@@ -1,3 +1,4 @@
+
 const firebaseConfig = {
   apiKey: "AIzaSyAsjk8k0wS-CtyyDTUhtfvwznu1EhrITWk",
   authDomain: "site-filmes-a8770.firebaseapp.com",
@@ -29,6 +30,8 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("genero-opcoes").classList.add("oculto");
     }
   });
+
+  document.getElementById('buscar-filme').addEventListener('click', buscarFilme);
 });
 
 function toggleGenero() {
@@ -118,4 +121,30 @@ function limparCampos() {
   document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => c.checked = false);
   ratingSelecionado = 0;
   atualizarEstrelas();
+}
+
+function buscarFilme() {
+  const titulo = document.getElementById('titulo').value;
+  if (!titulo) {
+    alert('Por favor, insira o título do filme!');
+    return;
+  }
+  const apiKey = "7a859aa5";
+  const url = `https://www.omdbapi.com/?t=${encodeURIComponent(titulo)}&apikey=${apiKey}`;
+
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      if (data.Response === "True") {
+        document.getElementById('sinopse').value = data.Plot;
+        document.getElementById('capa').value = data.Poster;
+        document.getElementById('trailer').value = `https://www.youtube.com/results?search_query=${encodeURIComponent(data.Title)}+trailer`;
+      } else {
+        alert('Filme não encontrado!');
+      }
+    })
+    .catch(error => {
+      console.error("Erro ao buscar filme:", error);
+      alert('Erro ao buscar informações do filme!');
+    });
 }
