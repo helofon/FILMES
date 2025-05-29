@@ -24,11 +24,23 @@ function atualizarEstrelas() {
   });
 }
 
+function toggleGenero() {
+  document.getElementById("genero-opcoes").classList.toggle("oculto");
+}
+  document.addEventListener('click', function(event) {
+  const container = document.getElementById("genero-container");
+  if (!container.contains(event.target)) {
+    document.getElementById("genero-opcoes").classList.add("oculto");
+  }
+});
+
 function adicionarOuSalvarFilme() {
   const titulo = document.getElementById('titulo').value;
   const sinopse = document.getElementById('sinopse').value;
-  const generoSelect = document.getElementById("genero");
-  const generosSelecionados = Array.from(generoSelect.selectedOptions).map(opt => opt.value);
+  const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
+  const generosSelecionados = Array.from(generoCheckboxes)
+      .filter(c => c.checked)
+      .map(c => c.value);
   const capa = document.getElementById('capa').value;
   const trailer = document.getElementById('trailer').value;
 
@@ -82,16 +94,11 @@ function editarFilme(index) {
   document.getElementById('trailer').value = filme.trailer;
   ratingSelecionado = filme.rating || 0;
   atualizarEstrelas();
-
-const generoSelect = document.getElementById('genero');
-Array.from(generoSelect.options).forEach(option => {
-  option.selected = filme.genero.includes(option.value);
-});
+  document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
+  c.checked = filme.genero.includes(c.value);
+  });
 
   editandoIndex = index;
-
-
-
 }
 
 function removerFilme(index) {
@@ -130,8 +137,8 @@ function limparCampos() {
   document.getElementById('sinopse').value = '';
   document.getElementById('capa').value = '';
   document.getElementById('trailer').value = '';
-  const generoSelect = document.getElementById('genero');
-  Array.from(generoSelect.options).forEach(option => option.selected = false);
+  document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => c.checked = false);
+
 
 });
 
