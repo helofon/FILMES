@@ -1,4 +1,3 @@
-
 const firebaseConfig = {
   apiKey: "AIzaSyAsjk8k0wS-CtyyDTUhtfvwznu1EhrITWk",
   authDomain: "site-filmes-a8770.firebaseapp.com",
@@ -30,9 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("genero-opcoes").classList.add("oculto");
     }
   });
-
-  document.getElementById('buscar-filme').addEventListener('click', buscarFilme);
-  document.getElementById('filtrar-generos').addEventListener('click', filtrarPorGeneros);
 });
 
 function toggleGenero() {
@@ -77,14 +73,14 @@ function carregarFilmes() {
       data.id = doc.id;
       filmes.push(data);
     });
-    exibirFilmes(filmes);
+    exibirFilmes();
   });
 }
 
-function exibirFilmes(listaFilmes) {
+function exibirFilmes() {
   const container = document.getElementById('filmes-container');
   container.innerHTML = '';
-  listaFilmes.forEach((filme, index) => {
+  filmes.forEach((filme, index) => {
     const estrelas = '★'.repeat(filme.rating || 0) + '☆'.repeat(5 - (filme.rating || 0));
     container.innerHTML += `
       <div class="filme">
@@ -94,35 +90,24 @@ function exibirFilmes(listaFilmes) {
         <p><strong>Rating:</strong> ${estrelas}</p>
         <img src="${filme.capa}" alt="${filme.titulo}">
         <p><a href="${filme.trailer}" target="_blank">Assistir Trailer</a></p>
+        <input type="checkbox" value="${index}"> Selecionar
       </div>
     `;
   });
 }
 
-function buscarFilme() {
-  const titulo = document.getElementById('titulo').value;
-  if (!titulo) {
-    alert('Por favor, insira o título do filme!');
+function sortearFilme() {
+  const selecionados = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+    .map(c => filmes[c.value]);
+
+  const resultado = document.getElementById("resultado");
+  if (selecionados.length === 0) {
+    resultado.innerText = "Nenhum filme selecionado!";
     return;
   }
-  const apiKey = "7a859aa5";
-  const url = `https://www.omdbapi.com/?t=${encodeURIComponent(titulo)}&apikey=${apiKey}`;
 
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      if (data.Response === "True") {
-        document.getElementById('sinopse').value = data.Plot;
-        document.getElementById('capa').value = data.Poster;
-        document.getElementById('trailer').value = `https://www.youtube.com/results?search_query=${encodeURIComponent(data.Title)}+trailer`;
-      } else {
-        alert('Filme não encontrado!');
-      }
-    })
-    .catch(error => {
-      console.error("Erro ao buscar filme:", error);
-      alert('Erro ao buscar informações do filme!');
-    });
+  const sorteado = selecionados[Math.floor(Math.random() * selecionados.length)];
+  resultado.innerText = `🎬 Filme Sorteado: ${sorteado.titulo}`;
 }
 
 function limparCampos() {
@@ -133,15 +118,4 @@ function limparCampos() {
   document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => c.checked = false);
   ratingSelecionado = 0;
   atualizarEstrelas();
-}
-
-function filtrarPorGeneros() {
-  const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
-  const generosSelecionados = Array.from(generoCheckboxes).filter(c => c.checked).map(c => c.value);
-  if (generosSelecionados.length === 0) {
-    alert('Selecione pelo menos um gênero!');
-    return;
-  }
-  const filmesFiltrados = filmes.filter(filme => filme.genero.some(g => generosSelecionados.includes(g)));
-  exibirFilmes(filmesFiltrados);
 }
