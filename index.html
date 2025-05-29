@@ -1,108 +1,135 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Site de Filmes</title>
-     <link rel="stylesheet" type="text/css" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Site de Filmes</title>
+  <style>
+  
+  </style>
 </head>
 <body>
 
-<h1>NOSSOS FILMES</h1>
+  <h1>NOSSOS FILMES</h1>
 
-<div id="filmes-container"></div>
+  <div>
+    <input type="text" id="titulo" placeholder="Título do Filme">
+    <input type="text" id="sinopse" placeholder="Sinopse">
+    <input type="text" id="genero" placeholder="Gênero">
+    <input type="text" id="capa" placeholder="URL da Capa">
+    <input type="text" id="trailer" placeholder="URL do Trailer do YouTube">
+    <button onclick="adicionarOuSalvarFilme()">Adicionar Filme</button>
+    <button onclick="limparTodos()">Limpar Todos os Filmes</button>
+  </div>
 
-<input type="text" id="titulo" placeholder="Título do Filme">
-<input type="text" id="sinopse" placeholder="Sinopse">
-<input type="text" id="genero" placeholder="Gênero">
-<input type="text" id="capa" placeholder="URL da Capa">
-<input type="text" id="trailer" placeholder="URL do Trailer do YouTube">
-<button onclick="adicionarFilme()">Adicionar Filme</button>
+  <div id="filmes-container"></div>
 
-<h2>SORTEADOR</h2>
-<div id="filmes-selecionados"></div>
-<button onclick="sortearFilme()">Sortear Filme</button>
+  <h2>SORTEADOR</h2>
+  <button onclick="sortearFilme()">Sortear Filme</button>
+  <div id="resultado"></div>
 
-<div id="resultado"></div>
+  <script>
+    let filmes = [];
+    let editandoIndex = -1;
 
-<script>
-    const filmes = [];
-
-    // Carrega os filmes do localStorage ao iniciar
-    window.onload = function() {
+    window.onload = function () {
       const filmesSalvos = localStorage.getItem("filmes");
       if (filmesSalvos) {
         filmes = JSON.parse(filmesSalvos);
-        atualizarLista();
+        exibirFilmes();
       }
     }
 
-    function adicionarFilme() {
-        const titulo = document.getElementById('titulo').value;
-        const sinopse = document.getElementById('sinopse').value;
-        const genero = document.getElementById('genero').value;
-        const capa = document.getElementById('capa').value;
-        const trailer = document.getElementById('trailer').value;
+    function adicionarOuSalvarFilme() {
+      const titulo = document.getElementById('titulo').value;
+      const sinopse = document.getElementById('sinopse').value;
+      const genero = document.getElementById('genero').value;
+      const capa = document.getElementById('capa').value;
+      const trailer = document.getElementById('trailer').value;
 
-        const filme = { titulo, sinopse, genero, capa, trailer };
+      const filme = { titulo, sinopse, genero, capa, trailer };
+
+      if (editandoIndex >= 0) {
+        filmes[editandoIndex] = filme;
+        editandoIndex = -1;
+      } else {
         filmes.push(filme);
-        exibirFilmes();
-        limparCampos();
-        localStorage.setItem("filmes", JSON.stringify(filmes)); // Salva no localStorage
-        atualizarLista();
+      }
+
+      localStorage.setItem("filmes", JSON.stringify(filmes));
+      exibirFilmes();
+      limparCampos();
     }
 
     function exibirFilmes() {
-        const container = document.getElementById('filmes-container');
-        container.innerHTML = '';
-        filmes.forEach((filme, index) => {
-            container.innerHTML += `
-                <div class="filme">
-                    <h3>${filme.titulo}</h3>
-                    <p>${filme.sinopse}</p>
-                    <p><strong>Gênero:</strong> ${filme.genero}</p>
-                    <img src="${filme.capa}" alt="${filme.titulo}">
-                    <p><a href="${filme.trailer}" target="_blank">Assistir Trailer</a></p>
-                    <input type="checkbox" id="filme-${index}" value="${index}"> Selecionar
-                </div>
-            `;
-        });
+      const container = document.getElementById('filmes-container');
+      container.innerHTML = '';
+      filmes.forEach((filme, index) => {
+        container.innerHTML += `
+          <div class="filme">
+            <h3>${filme.titulo}</h3>
+            <p>${filme.sinopse}</p>
+            <p><strong>Gênero:</strong> ${filme.genero}</p>
+            <img src="${filme.capa}" alt="${filme.titulo}">
+            <p><a href="${filme.trailer}" target="_blank">Assistir Trailer</a></p>
+            <input type="checkbox" id="filme-${index}" value="${index}"> Selecionar
+            <br>
+            <button onclick="editarFilme(${index})">Editar</button>
+            <button onclick="removerFilme(${index})">Remover</button>
+          </div>
+        `;
+      });
+    }
+
+    function editarFilme(index) {
+      const filme = filmes[index];
+      document.getElementById('titulo').value = filme.titulo;
+      document.getElementById('sinopse').value = filme.sinopse;
+      document.getElementById('genero').value = filme.genero;
+      document.getElementById('capa').value = filme.capa;
+      document.getElementById('trailer').value = filme.trailer;
+      editandoIndex = index;
+    }
+
+    function removerFilme(index) {
+      if (confirm("Tem certeza que deseja remover este filme?")) {
+        filmes.splice(index, 1);
+        localStorage.setItem("filmes", JSON.stringify(filmes));
+        exibirFilmes();
+      }
+    }
+
+    function limparTodos() {
+      if (confirm("Tem certeza que deseja apagar todos os filmes?")) {
+        filmes = [];
+        localStorage.removeItem("filmes");
+        exibirFilmes();
+      }
     }
 
     function sortearFilme() {
-        const selecionados = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-            .map(checkbox => filmes[checkbox.value]);
+      const selecionados = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+        .map(checkbox => filmes[checkbox.value]);
 
-        if (selecionados.length === 0) {
-            document.getElementById('resultado').innerText = 'Nenhum filme selecionado!';
-            return;
-        }
+      const resultado = document.getElementById('resultado');
 
-        const filmeSorteado = selecionados[Math.floor(Math.random() * selecionados.length)];
-        document.getElementById('resultado').innerText = `Filme Sorteado: ${filmeSorteado.titulo}`;
+      if (selecionados.length === 0) {
+        resultado.innerText = 'Nenhum filme selecionado!';
+        return;
+      }
+
+      const filmeSorteado = selecionados[Math.floor(Math.random() * selecionados.length)];
+      resultado.innerText = `🎬 Filme Sorteado: ${filmeSorteado.titulo}`;
     }
 
     function limparCampos() {
-        document.getElementById('titulo').value = '';
-        document.getElementById('sinopse').value = '';
-        document.getElementById('genero').value = '';
-        document.getElementById('capa').value = '';
-        document.getElementById('trailer').value = '';
+      document.getElementById('titulo').value = '';
+      document.getElementById('sinopse').value = '';
+      document.getElementById('genero').value = '';
+      document.getElementById('capa').value = '';
+      document.getElementById('trailer').value = '';
     }
-
-
-     
-
-
-    function atualizarLista() {
-      const lista = document.getElementById("listaFilmes");
-      lista.innerHTML = "";
-      filmes.forEach((filme, index) => {
-        const item = document.createElement("li");
-        item.textContent = filme;
-        lista.appendChild(item);
-      });
-</script>
+  </script>
 
 </body>
 </html>
