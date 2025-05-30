@@ -1,3 +1,4 @@
+// Adicione estas importações MODULARES no TOPO do seu script.js
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js';
 import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js';
 
@@ -153,12 +154,12 @@ function exibirFilmes(listaParaExibir = filmes) {
         let trailerContent = '';
 
         if (videoId) {
-            // Incorpora o vídeo do YouTube com parâmetros para melhor experiência
+            // CORRIGIDO: URL correta para o embed do YouTube
             trailerContent = `
                 <div class="video-container">
                     <iframe 
                         width="300" height="169" 
-                        src="http://www.youtube.com/embed/${videoId}?autoplay=0&controls=1&modestbranding=1&rel=0" 
+                        src="https://www.youtube.com/embed/${videoId}?autoplay=0&controls=1&modestbranding=1&rel=0" 
                         frameborder="0" 
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                         allowfullscreen>
