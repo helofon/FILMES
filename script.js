@@ -1,4 +1,3 @@
-// Adicione estas importações MODULARES no TOPO do seu script.js
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js';
 import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js';
 
@@ -18,9 +17,11 @@ let filmes = []; // Lista global de todos os filmes carregados
 let ratingSelecionado = 0;
 let idFilmeEditando = null;
 
+// Garante que o script só execute após o DOM estar completamente carregado
 document.addEventListener("DOMContentLoaded", function () {
     carregarFilmes();
 
+    // Event listener para as estrelas de avaliação
     document.querySelectorAll('.estrela').forEach(estrela => {
         estrela.addEventListener('click', () => {
             ratingSelecionado = parseInt(estrela.getAttribute('data-value'));
@@ -33,20 +34,22 @@ document.addEventListener("DOMContentLoaded", function () {
         const generoContainer = document.getElementById("genero-container");
         const generoOptions = document.getElementById("genero-opcoes");
         
-        // Verifica se o clique não foi dentro do container de gênero
+        // Se o clique não foi dentro do container de gênero, oculte as opções
         if (!generoContainer.contains(event.target) && !generoOptions.classList.contains("oculto")) {
             generoOptions.classList.add("oculto");
         }
     });
 
-    // Adicione TODOS os listeners aqui dentro
+    // Adicione TODOS os listeners para os botões e inputs aqui dentro do DOMContentLoaded
     document.getElementById('btnBuscarOMDb').addEventListener('click', buscarFilmeOMDb);
     document.getElementById('genero-toggle').addEventListener('click', toggleGenero);
     document.getElementById('btnAdicionarOuSalvarFilme').addEventListener('click', adicionarOuSalvarFilme);
     document.getElementById('btnLimparTodos').addEventListener('click', limparTodos);
     document.getElementById('btnSortearFilme').addEventListener('click', sortearFilme);
-    document.getElementById('busca-genero').addEventListener('input', filtrarPorGenero);
+    document.getElementById('busca-genero').addEventListener('input', filtrarPorGenero); // Listener do filtro por gênero
 });
+
+// Funções do aplicativo (definidas no escopo global para serem acessíveis)
 
 function toggleGenero() {
     document.getElementById("genero-opcoes").classList.toggle("oculto");
@@ -66,19 +69,27 @@ async function adicionarOuSalvarFilme() {
     const trailer = document.getElementById('trailer').value.trim();
     const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
     const generosSelecionados = Array.from(generoCheckboxes).filter(c => c.checked).map(c => c.value);
+    const ano = document.getElementById('ano').value.trim(); // Captura o ano
 
     if (!titulo) {
         alert("O título do filme é obrigatório!");
         return;
     }
 
+    // Validação opcional para o ano (4 dígitos numéricos)
+    if (ano && !/^[0-9]{4}$/.test(ano)) {
+        alert("O ano do filme deve ter 4 dígitos numéricos.");
+        return;
+    }
+
     const filmeData = {
         titulo,
         sinopse,
-        genero: generosSelecionados, // Garante que sempre seja um array
+        genero: generosSelecionados,
         capa,
         trailer,
-        rating: ratingSelecionado
+        rating: ratingSelecionado,
+        ano: ano // Adiciona o ano ao objeto de dados
     };
 
     try {
@@ -111,26 +122,24 @@ async function carregarFilmes() {
         });
         exibirFilmes(filmes); // Exibe todos os filmes carregados inicialmente
     } catch (error) {
-        // Loga o erro, mas não exibe alerta, pois a exibição ainda pode funcionar
         console.error("Erro ao carregar filmes ou processar dados existentes:", error);
     }
 }
 
-// NOVO: Função para extrair o ID do vídeo do YouTube
+// Função para extrair o ID do vídeo do YouTube de diversas URLs
 function getYouTubeVideoId(url) {
-    if (!url || typeof url !== 'string') return null; // Garante que a URL é uma string
-    const regExp = /(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|)([\w-]{11})(?:\S+)?/g;
-    const match = regExp.exec(url);
+    if (!url || typeof url !== 'string') return null;
+    const regExp = /(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|)([\w-]{11})(?:\S+)?/i;
+    const match = url.match(regExp);
     return (match && match[1] && match[1].length === 11) ? match[1] : null;
 }
 
-// Modificado: exibirFilmes agora pode receber uma lista específica para exibir
-function exibirFilmes(listaParaExibir = filmes) { // Por padrão, exibe a lista global 'filmes'
+// Exibe a lista de filmes (pode ser a lista completa ou uma filtrada)
+function exibirFilmes(listaParaExibir = filmes) {
     const container = document.getElementById('filmes-container');
     container.innerHTML = '';
 
     if (listaParaExibir.length === 0) {
-        // Mensagem mais clara para quando não há filmes ou a busca não encontrou nada
         container.innerHTML = '<p>Nenhum filme encontrado com os critérios de busca ou cadastrado ainda. Adicione um!</p>';
         return;
     }
@@ -138,16 +147,18 @@ function exibirFilmes(listaParaExibir = filmes) { // Por padrão, exibe a lista 
     listaParaExibir.forEach((filme) => {
         const estrelas = '★'.repeat(filme.rating || 0) + '☆'.repeat(5 - (filme.rating || 0));
         const generosFormatados = Array.isArray(filme.genero) ? filme.genero.join(', ') : 'N/A';
+        const anoFilme = filme.ano ? ` (${filme.ano})` : ''; // Adiciona o ano ao título se existir
 
         const videoId = getYouTubeVideoId(filme.trailer);
         let trailerContent = '';
 
         if (videoId) {
+            // Incorpora o vídeo do YouTube com parâmetros para melhor experiência
             trailerContent = `
                 <div class="video-container">
                     <iframe 
                         width="300" height="169" 
-                        src="https://www.youtube.com/embed/${videoId}?autoplay=0" 
+                        src="http://www.youtube.com/embed/${videoId}?autoplay=0&controls=1&modestbranding=1&rel=0" 
                         frameborder="0" 
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                         allowfullscreen>
@@ -158,12 +169,13 @@ function exibirFilmes(listaParaExibir = filmes) { // Por padrão, exibe a lista 
             // Se não for um vídeo do YouTube, mas tiver uma URL, mostra como link
             trailerContent = `<p><a href="${filme.trailer}" target="_blank" rel="noopener noreferrer">Assistir Trailer (Link Externo)</a></p>`;
         } else {
+            // Se não houver trailer ou for inválido
             trailerContent = `<p>Trailer não disponível.</p>`;
         }
         
         container.innerHTML += `
             <div class="filme">
-                <h3>${filme.titulo}</h3>
+                <h3>${filme.titulo}${anoFilme}</h3> 
                 <p>${filme.sinopse}</p>
                 <p><strong>Gêneros:</strong> ${generosFormatados}</p>
                 <p><strong>Rating:</strong> ${estrelas}</p>
@@ -177,7 +189,7 @@ function exibirFilmes(listaParaExibir = filmes) { // Por padrão, exibe a lista 
     });
 }
 
-// NOVO: Função de filtro por gênero
+// Função para filtrar filmes por gênero (chamada pelo input de busca)
 function filtrarPorGenero() {
     const termoBusca = document.getElementById('busca-genero').value.toLowerCase().trim();
     let filmesFiltrados = filmes; // Começa com a lista completa de filmes
@@ -211,6 +223,7 @@ function limparCampos() {
     document.getElementById('sinopse').value = '';
     document.getElementById('capa').value = '';
     document.getElementById('trailer').value = '';
+    document.getElementById('ano').value = ''; // Limpa o campo do ano
     document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => c.checked = false);
     ratingSelecionado = 0;
     atualizarEstrelas();
@@ -260,9 +273,9 @@ function editarFilme(id) {
         document.getElementById('sinopse').value = filmeParaEditar.sinopse || '';
         document.getElementById('capa').value = filmeParaEditar.capa || '';
         document.getElementById('trailer').value = filmeParaEditar.trailer || '';
+        document.getElementById('ano').value = filmeParaEditar.ano || ''; // Preenche o campo do ano
 
         document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
-            // CORREÇÃO: Garante que filmeParaEditar.genero é um array antes de usar includes
             const generosDoFilme = Array.isArray(filmeParaEditar.genero) ? filmeParaEditar.genero : [];
             c.checked = generosDoFilme.includes(c.value);
         });
@@ -296,15 +309,16 @@ async function buscarFilmeOMDb() {
         document.getElementById('titulo').value = data.Title || "";
         document.getElementById('sinopse').value = data.Plot || "";
         document.getElementById('capa').value = data.Poster || "";
-        document.getElementById('trailer').value = ""; // OMDb não fornece trailer, então limpamos
+        document.getElementById('trailer').value = ""; // OMDb não fornece trailer
+        document.getElementById('ano').value = data.Year || ""; // Preenche o ano do OMDb
         
-        const generos = (data.Genre || "").split(',').map(g => g.trim()).filter(g => g !== ''); // Garante que não haja gêneros vazios
+        const generos = (data.Genre || "").split(',').map(g => g.trim()).filter(g => g !== '');
         document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
             c.checked = generos.includes(c.value);
         });
 
         const notaIMDb = parseFloat(data.imdbRating);
-        ratingSelecionado = isNaN(notaIMDb) ? 0 : Math.round(notaIMDb / 2); // Converte para escala de 5 estrelas
+        ratingSelecionado = isNaN(notaIMDb) ? 0 : Math.round(notaIMDb / 2);
         atualizarEstrelas();
     } catch (err) {
         console.error("Erro ao buscar filme no OMDb:", err);
@@ -312,7 +326,6 @@ async function buscarFilmeOMDb() {
     }
 }
 
-// Expõe as funções editarFilme e deletarFilme globalmente para o HTML
-// Elas são chamadas por 'onclick' em elementos criados dinamicamente
+// Expõe as funções globalmente para serem acessíveis pelos onclick no HTML
 window.editarFilme = editarFilme;
 window.deletarFilme = deletarFilme;
