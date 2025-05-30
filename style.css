@@ -45,7 +45,6 @@ input[type="text"] {
   color: #4b007d;
   box-sizing: border-box;
   width: 680px;
-  resize: vertical;
 }
 #genero {
   width: 300px;
