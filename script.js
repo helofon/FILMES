@@ -184,11 +184,10 @@ function exibirFilmes(listaParaExibir = filmes) {
                 <p><strong>Gêneros:</strong> ${generosFormatados}</p>
                 <p>${filme.sinopse}</p>
                 <p>${duracaoFilme} <strong>Rating:</strong> ${estrelas}</p>
-                
                 ${trailerContent}
-                <input type="checkbox" data-id="${filme.id}"> Selecionar
                 <button onclick="window.editarFilme('${filme.id}')">Editar</button>
                 <button onclick="window.deletarFilme('${filme.id}')">Deletar</button>
+                <input type="checkbox" data-id="${filme.id}"> Selecionar
             </div>
         `;
     });
