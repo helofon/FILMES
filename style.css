@@ -17,11 +17,6 @@ h2 {
   color: #6b3fa0;
 }
 
-h3 {
-  font-family: 'Monaco', Monospace;
-  color: #6b3fa0;
-}
-
 input[type="text"] {
   padding: 10px;
   margin: 8px 5px;
@@ -42,14 +37,7 @@ input[type="text"] {
   width: 100px;
 }
 #sinopse {
-  padding: 10px;
-  margin: 8px 5px;
-  border: 1px solid #caa6f2;
-  border-radius: 10px;
-  background-color: #fff;
-  color: #4b007d;
-  box-sizing: border-box;
-  width: 680px;
+  width: 670px;
 }
 #genero {
   width: 300px;
