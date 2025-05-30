@@ -1,3 +1,7 @@
+// Adicione estas importações MODULARES no TOPO do seu script.js
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js';
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js';
+
 const firebaseConfig = {
   apiKey: "AIzaSyAsjk8k0wS-CtyyDTUhtfvwznu1EhrITWk",
   authDomain: "site-filmes-a8770.firebaseapp.com",
@@ -7,11 +11,14 @@ const firebaseConfig = {
   appId: "1:6675724716:web:279205a26c9312e8bc6209"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// Use a sintaxe modular para inicializar:
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app); // Agora getFirestore está importado e disponível
 
 let filmes = [];
+// Declare 'ratingSelecionado' com 'let' no topo para evitar o ReferenceError
 let ratingSelecionado = 0;
+let idFilmeEditando = null; // Variável global para armazenar o ID do filme sendo editado
 
 document.addEventListener("DOMContentLoaded", function () {
   carregarFilmes(); // Carrega os filmes ao iniciar a página
@@ -24,7 +31,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.addEventListener('click', function (event) {
     const container = document.getElementById("genero-container");
-    // Se o clique não foi dentro do container de gênero, esconde as opções
     if (!container.contains(event.target)) {
       document.getElementById("genero-opcoes").classList.add("oculto");
     }
@@ -42,7 +48,8 @@ function atualizarEstrelas() {
   });
 }
 
-function adicionarOuSalvarFilme() {
+// A função adicionarOuSalvarFilme agora precisa ser 'async' para usar 'await' com addDoc/updateDoc
+async function adicionarOuSalvarFilme() {
   const titulo = document.getElementById('titulo').value;
   const sinopse = document.getElementById('sinopse').value;
   const capa = document.getElementById('capa').value;
@@ -50,7 +57,7 @@ function adicionarOuSalvarFilme() {
   const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
   const generosSelecionados = Array.from(generoCheckboxes).filter(c => c.checked).map(c => c.value);
 
-  const filme = {
+  const filmeData = {
     titulo,
     sinopse,
     genero: generosSelecionados,
@@ -59,45 +66,53 @@ function adicionarOuSalvarFilme() {
     rating: ratingSelecionado
   };
 
-  db.collection("filmes").add(filme)
-    .then(() => {
+  try {
+    if (idFilmeEditando) {
+      // Modo de edição: atualiza um documento existente
+      await updateDoc(doc(db, "filmes", idFilmeEditando), filmeData);
+      console.log("Filme atualizado com sucesso!");
+      document.querySelector('button[onclick="adicionarOuSalvarFilme()"]').innerText = "Adicionar Filme"; // Volta o texto do botão
+      idFilmeEditando = null; // Reseta o ID de edição
+    } else {
+      // Modo de adição: adiciona um novo documento
+      await addDoc(collection(db, "filmes"), filmeData); // 'collection' e 'addDoc' estão importados
       console.log("Filme adicionado com sucesso!");
-      carregarFilmes(); // Recarrega e exibe os filmes atualizados após adicionar um novo
-      limparCampos();   // Limpa os campos do formulário para um novo registro
-    })
-    .catch((error) => {
-      console.error("Erro ao salvar o filme:", error);
-      alert("Erro ao salvar o filme no banco de dados. Verifique o console para mais detalhes.");
-    });
+    }
+    carregarFilmes(); // Recarrega e exibe os filmes
+    limparCampos();   // Limpa o formulário
+  } catch (error) {
+    console.error("Erro ao salvar/atualizar o filme:", error);
+    alert("Erro ao salvar/atualizar o filme no banco de dados. Verifique o console para mais detalhes.");
+  }
 }
 
-function carregarFilmes() {
-  // Pega os documentos da coleção "filmes"
-  db.collection("filmes").get()
-    .then(snapshot => {
-      filmes = []; // Limpa a lista atual de filmes
-      snapshot.forEach(doc => {
-        const data = doc.data(); // Pega os dados do documento
-        data.id = doc.id;       // Adiciona o ID do documento aos dados
-        filmes.push(data);      // Adiciona o filme à lista
-      });
-      exibirFilmes(); // Exibe os filmes carregados
-    })
-    .catch(error => {
-      console.error("Erro ao carregar filmes:", error);
-      alert("Erro ao carregar os filmes. Verifique o console para mais detalhes.");
+// carregarFilmes também pode ser 'async' para usar await getDocs
+async function carregarFilmes() {
+  try {
+    const filmesCollection = collection(db, "filmes"); // 'collection' está importada
+    const snapshot = await getDocs(filmesCollection); // 'getDocs' está importada
+    filmes = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      data.id = doc.id;
+      filmes.push(data);
     });
+    exibirFilmes();
+  } catch (error) {
+    console.error("Erro ao carregar filmes:", error);
+    alert("Erro ao carregar os filmes. Verifique o console para mais detalhes.");
+  }
 }
 
 function exibirFilmes() {
   const container = document.getElementById('filmes-container');
-  container.innerHTML = ''; // Limpa o container antes de exibir os filmes
+  container.innerHTML = '';
   if (filmes.length === 0) {
     container.innerHTML = '<p>Nenhum filme cadastrado ainda. Adicione um!</p>';
     return;
   }
 
-  filmes.forEach((filme, index) => {
+  filmes.forEach((filme) => { // Removi o 'index' pois não é mais usado no checkbox
     const estrelas = '★'.repeat(filme.rating || 0) + '☆'.repeat(5 - (filme.rating || 0));
     container.innerHTML += `
       <div class="filme">
@@ -116,7 +131,6 @@ function exibirFilmes() {
 }
 
 function sortearFilme() {
-  // Pega apenas os filmes selecionados (usando data-id agora)
   const selecionados = Array.from(document.querySelectorAll('#filmes-container input[type="checkbox"]:checked'))
     .map(checkbox => filmes.find(f => f.id === checkbox.getAttribute('data-id')));
 
@@ -137,49 +151,43 @@ function limparCampos() {
   document.getElementById('trailer').value = '';
   document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => c.checked = false);
   ratingSelecionado = 0;
-  atualizarEstrelas(); // Reseta as estrelas visuais
+  atualizarEstrelas();
 }
 
-// Adicione a função limparTodos (cuidado ao usar, ela deleta tudo!)
-function limparTodos() {
+async function limparTodos() {
   if (confirm("Tem certeza que deseja DELETAR TODOS os filmes? Esta ação é irreversível!")) {
-    db.collection("filmes").get()
-      .then(snapshot => {
-        const batch = db.batch(); // Usar batch para deletar múltiplos documentos eficientemente
-        snapshot.forEach(doc => {
-          batch.delete(doc.ref);
-        });
-        return batch.commit(); // Confirma a exclusão em lote
-      })
-      .then(() => {
-        console.log("Todos os filmes foram deletados!");
-        carregarFilmes(); // Recarrega a lista para mostrar que está vazia
-        alert("Todos os filmes foram removidos com sucesso!");
-      })
-      .catch(error => {
-        console.error("Erro ao deletar todos os filmes:", error);
-        alert("Erro ao tentar remover todos os filmes.");
+    try {
+      const filmesCollection = collection(db, "filmes");
+      const snapshot = await getDocs(filmesCollection);
+      const batch = writeBatch(db); // use writeBatch para operações em lote
+
+      snapshot.forEach(documento => {
+        batch.delete(doc(db, "filmes", documento.id)); // deleteDoc usa a referência do documento
       });
+
+      await batch.commit();
+      console.log("Todos os filmes foram deletados!");
+      carregarFilmes();
+      alert("Todos os filmes foram removidos com sucesso!");
+    } catch (error) {
+      console.error("Erro ao deletar todos os filmes:", error);
+      alert("Erro ao tentar remover todos os filmes.");
+    }
   }
 }
 
-// Adicione a função para deletar um filme específico
-function deletarFilme(id) {
+async function deletarFilme(id) {
   if (confirm("Tem certeza que deseja deletar este filme?")) {
-    db.collection("filmes").doc(id).delete()
-      .then(() => {
-        console.log("Filme deletado com sucesso!");
-        carregarFilmes(); // Recarrega a lista
-      })
-      .catch(error => {
-        console.error("Erro ao deletar filme:", error);
-        alert("Erro ao deletar o filme.");
-      });
+    try {
+      await deleteDoc(doc(db, "filmes", id)); // 'deleteDoc' e 'doc' estão importados
+      console.log("Filme deletado com sucesso!");
+      carregarFilmes();
+    } catch (error) {
+      console.error("Erro ao deletar filme:", error);
+      alert("Erro ao deletar o filme.");
+    }
   }
 }
-
-// Adicione a função para editar um filme
-let idFilmeEditando = null; // Variável global para armazenar o ID do filme sendo editado
 
 function editarFilme(id) {
   const filmeParaEditar = filmes.find(f => f.id === id);
@@ -189,137 +197,51 @@ function editarFilme(id) {
     document.getElementById('capa').value = filmeParaEditar.capa || '';
     document.getElementById('trailer').value = filmeParaEditar.trailer || '';
 
-    // Marcar os gêneros
     document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
       c.checked = filmeParaEditar.genero && filmeParaEditar.genero.includes(c.value);
     });
 
-    // Definir o rating
     ratingSelecionado = filmeParaEditar.rating || 0;
     atualizarEstrelas();
 
-    // Mudar o texto do botão para "Salvar Alterações"
     document.querySelector('button[onclick="adicionarOuSalvarFilme()"]').innerText = "Salvar Alterações";
-    idFilmeEditando = id; // Armazena o ID do filme que está sendo editado
+    idFilmeEditando = id;
   }
 }
 
-// Refatorando adicionarOuSalvarFilme para incluir edição:
-function adicionarOuSalvarFilme() {
+async function buscarFilmeOMDb() {
   const titulo = document.getElementById('titulo').value;
-  const sinopse = document.getElementById('sinopse').value;
-  const capa = document.getElementById('capa').value;
-  const trailer = document.getElementById('trailer').value;
-  const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
-  const generosSelecionados = Array.from(generoCheckboxes).filter(c => c.checked).map(c => c.value);
-
-  const filmeData = {
-    titulo,
-    sinopse,
-    genero: generosSelecionados,
-    capa,
-    trailer,
-    rating: ratingSelecionado
-  };
-
-  if (idFilmeEditando) {
-    // Modo de edição: atualiza um documento existente
-    db.collection("filmes").doc(idFilmeEditando).update(filmeData)
-      .then(() => {
-        console.log("Filme atualizado com sucesso!");
-        carregarFilmes();
-        limparCampos();
-        document.querySelector('button[onclick="adicionarOuSalvarFilme()"]').innerText = "Adicionar Filme"; // Volta o texto do botão
-        idFilmeEditando = null; // Reseta o ID de edição
-      })
-      .catch((error) => {
-        console.error("Erro ao atualizar o filme:", error);
-        alert("Erro ao atualizar o filme no banco de dados.");
-      });
-  } else {
-    // Modo de adição: adiciona um novo documento
-    db.collection("filmes").add(filmeData)
-      .then(() => {
-        console.log("Filme adicionado com sucesso!");
-        carregarFilmes();
-        limparCampos();
-      })
-      .catch((error) => {
-        console.error("Erro ao salvar o filme:", error);
-        alert("Erro ao salvar o filme no banco de dados.");
-      });
-  }
-}
-
-
-function filtrarPorGenero() {
-  const termo = document.getElementById('busca-genero').value.toLowerCase();
-  const container = document.getElementById('filmes-container');
-  container.innerHTML = '';
-
-  const filmesFiltrados = filmes.filter(filme => {
-    // Garante que filme.genero é um array antes de usar .some()
-    return filme.genero && filme.genero.some(g => g.toLowerCase().includes(termo));
-  });
-
-  if (filmesFiltrados.length === 0) {
-    container.innerHTML = '<p>Nenhum filme encontrado para este gênero.</p>';
+  if (!titulo.trim()) {
+    alert("Digite o nome do filme para buscar no IMDb.");
     return;
   }
 
-  filmesFiltrados.forEach((filme, index) => {
-    const estrelas = '★'.repeat(filme.rating || 0) + '☆'.repeat(5 - (filme.rating || 0));
-    container.innerHTML += `
-      <div class="filme">
-        <h3>${filme.titulo}</h3>
-        <p>${filme.sinopse}</p>
-        <p><strong>Gêneros:</strong> ${filme.genero.join(', ')}</p>
-        <p><strong>Rating:</strong> ${estrelas}</p>
-        <img src="${filme.capa}" alt="${filme.titulo}" onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=Sem+Capa';">
-        <p><a href="${filme.trailer}" target="_blank">Assistir Trailer</a></p>
-        <input type="checkbox" data-id="${filme.id}"> Selecionar
-        <button onclick="editarFilme('${filme.id}')">Editar</button>
-        <button onclick="deletarFilme('${filme.id}')">Deletar</button>
-      </div>
-    `;
-  });
-}
-
-function buscarFilmeOMDb() {
-  const titulo = document.getElementById('titulo').value;
-  if (!titulo.trim()) return alert("Digite o nome do filme para buscar no IMDb.");
-
-  // Chave de API OMDb (substitua pela sua chave real, se for diferente)
   const OMDb_API_KEY = "7a859aa5"; 
 
-  fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(titulo)}&apikey=${OMDb_API_KEY}`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.Response === "False") {
-        alert(`Filme "${titulo}" não encontrado no IMDb. Tente outro título.`);
-        return;
-      }
+  try {
+    const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(titulo)}&apikey=${OMDb_API_KEY}`);
+    const data = await res.json();
 
-      // Atualizar os campos com os dados recebidos
-      document.getElementById('titulo').value = data.Title || "";
-      document.getElementById('sinopse').value = data.Plot || "";
-      document.getElementById('capa').value = data.Poster || "";
-      document.getElementById('trailer').value = ""; // OMDb não fornece trailer diretamente
+    if (data.Response === "False") {
+      alert(`Filme "${titulo}" não encontrado no IMDb. Tente outro título.`);
+      return;
+    }
 
-      // Configurar os gêneros (marcando os checkboxes)
-      const generos = (data.Genre || "").split(',').map(g => g.trim());
-      document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
-        c.checked = generos.includes(c.value);
-      });
+    document.getElementById('titulo').value = data.Title || "";
+    document.getElementById('sinopse').value = data.Plot || "";
+    document.getElementById('capa').value = data.Poster || "";
+    document.getElementById('trailer').value = "";
 
-      // Calcular e configurar o rating (escala de 1 a 5)
-      // O IMDb Rating é geralmente de 0 a 10. Dividimos por 2 e arredondamos.
-      const notaIMDb = parseFloat(data.imdbRating);
-      ratingSelecionado = isNaN(notaIMDb) ? 0 : Math.round(notaIMDb / 2);
-      atualizarEstrelas(); // Atualiza a exibição das estrelas
-    })
-    .catch(err => {
-      console.error("Erro ao buscar filme no OMDb:", err);
-      alert("Erro ao buscar informações do filme. Verifique sua conexão ou a API Key.");
+    const generos = (data.Genre || "").split(',').map(g => g.trim());
+    document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
+      c.checked = generos.includes(c.value);
     });
+
+    const notaIMDb = parseFloat(data.imdbRating);
+    ratingSelecionado = isNaN(notaIMDb) ? 0 : Math.round(notaIMDb / 2);
+    atualizarEstrelas();
+  } catch (err) {
+    console.error("Erro ao buscar filme no OMDb:", err);
+    alert("Erro ao buscar informações do filme. Verifique sua conexão ou a API Key.");
+  }
 }
