@@ -18,7 +18,6 @@ h2 {
 }
 
 input[type="text"], select {
-  width: 100%;
   max-width: 300px;
   padding: 10px;
   margin: 8px 5px;
@@ -27,6 +26,23 @@ input[type="text"], select {
   background-color: #fff;
   color: #4b007d;
   box-sizing: border-box;
+}
+
+h3 {
+  width: 300px;
+}
+h4 {
+  width: 700px;
+  height: 50 px
+}
+h5 {
+  width: 300px;
+}
+h6 {
+  width: 500px;
+}
+h7 {
+  width: 500px;
 }
 
 select {
@@ -100,7 +116,7 @@ input[type="checkbox"] {
 
 #genero-container {
   position: relative;
-  max-width: 300px;
+  max-width: 500px;
   margin: 10px 5px;
 }
 
