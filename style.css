@@ -8,13 +8,13 @@ main {
 }
 
 h1 {
-  font-family: 'Monaco', Monospace;
+  font-family: 'Jazz LET', fantasy;
   text-align: center;
   color: #6b3fa0;
 }
 
 h2 {
-  font-family: 'Monaco', Monospace;
+  font-family: 'Chalkduster', fantasy;
   color: #6b3fa0;
 }
 
@@ -148,7 +148,7 @@ input[type="checkbox"] {
   padding: 10px;
   z-index: 10;
   max-height: 200px;
-  width: 170px;
+  width: 160px;
   overflow-y: auto;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
