@@ -229,6 +229,7 @@ function limparCampos() {
     document.getElementById('capa').value = '';
     document.getElementById('trailer').value = '';
     document.getElementById('ano').value = ''; // Limpa o campo do ano
+    document.getElementById('duracao').value = '';
     document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => c.checked = false);
     ratingSelecionado = 0;
     atualizarEstrelas();
@@ -279,6 +280,7 @@ function editarFilme(id) {
         document.getElementById('capa').value = filmeParaEditar.capa || '';
         document.getElementById('trailer').value = filmeParaEditar.trailer || '';
         document.getElementById('ano').value = filmeParaEditar.ano || ''; // Preenche o campo do ano
+        document.getElementById('duracao').value = filmeParaEditar.duracao || '';
 
         document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
             const generosDoFilme = Array.isArray(filmeParaEditar.genero) ? filmeParaEditar.genero : [];
@@ -316,6 +318,7 @@ async function buscarFilmeOMDb() {
         document.getElementById('capa').value = data.Poster || "";
         document.getElementById('trailer').value = ""; // OMDb não fornece trailer
         document.getElementById('ano').value = data.Year || ""; // Preenche o ano do OMDb
+        document.getElementById('duracao').value = data.Runtime ||
         
         const generos = (data.Genre || "").split(',').map(g => g.trim()).filter(g => g !== '');
         document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
