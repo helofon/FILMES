@@ -1,6 +1,7 @@
 // Adicione estas importações MODULARES no TOPO do seu script.js
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js';
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js';
+// É crucial importar 'writeBatch' para a função 'limparTodos'
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAsjk8k0wS-CtyyDTUhtfvwznu1EhrITWk",
@@ -13,16 +14,15 @@ const firebaseConfig = {
 
 // Use a sintaxe modular para inicializar:
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app); // Agora getFirestore está importado e disponível
+const db = getFirestore(app);
 
 let filmes = [];
-// Declare 'ratingSelecionado' com 'let' no topo para evitar o ReferenceError
 let ratingSelecionado = 0;
-let idFilmeEditando = null; // Variável global para armazenar o ID do filme sendo editado
+let idFilmeEditando = null;
 
 document.addEventListener("DOMContentLoaded", function () {
-  carregarFilmes(); // Carrega os filmes ao iniciar a página
- 
+  carregarFilmes();
+
   document.querySelectorAll('.estrela').forEach(estrela => {
     estrela.addEventListener('click', () => {
       ratingSelecionado = parseInt(estrela.getAttribute('data-value'));
@@ -36,7 +36,16 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("genero-opcoes").classList.add("oculto");
     }
   });
-});
+
+  // TODOS OS LISTENERS DE EVENTO AGORA ESTÃO DENTRO DE DOMContentLoaded
+  document.getElementById('btnBuscarOMDb').addEventListener('click', buscarFilmeOMDb);
+  document.getElementById('genero-toggle').addEventListener('click', toggleGenero); // Correção: 'genero-toggle' é uma div, não um botão
+  document.getElementById('btnAdicionarOuSalvarFilme').addEventListener('click', adicionarOuSalvarFilme);
+  document.getElementById('btnLimparTodos').addEventListener('click', limparTodos);
+  document.getElementById('btnSortearFilme').addEventListener('click', sortearFilme);
+  document.getElementById('busca-genero').addEventListener('input', filtrarPorGenero); // oninput no HTML, aqui é addEventListener('input')
+
+}); // Fim do DOMContentLoaded
 
 function toggleGenero() {
   document.getElementById("genero-opcoes").classList.toggle("oculto");
@@ -48,12 +57,6 @@ function atualizarEstrelas() {
     estrela.classList.toggle('selecionada', valor <= ratingSelecionado);
   });
 }
-  document.getElementById('btnBuscarOMDb').addEventListener('click', buscarFilmeOMDb);
-  document.getElementById('genero-toggle').addEventListener('click', toggleGenero);
-  document.getElementById('btnAdicionarOuSalvarFilme').addEventListener('click', adicionarOuSalvarFilme);
-  document.getElementById('btnLimparTodos').addEventListener('click', limparTodos);
-  document.getElementById('btnSortearFilme').addEventListener('click', sortearFilme);
-  document.getElementById('busca-genero').addEventListener('input', filtrarPorGenero);
 
 // A função adicionarOuSalvarFilme agora precisa ser 'async' para usar 'await' com addDoc/updateDoc
 async function adicionarOuSalvarFilme() {
@@ -78,26 +81,27 @@ async function adicionarOuSalvarFilme() {
       // Modo de edição: atualiza um documento existente
       await updateDoc(doc(db, "filmes", idFilmeEditando), filmeData);
       console.log("Filme atualizado com sucesso!");
-      document.querySelector('button[onclick="adicionarOuSalvarFilme()"]').innerText = "Adicionar Filme"; // Volta o texto do botão
+      // Correção: Se você está usando addEventListener, não haverá 'onclick' no botão de adicionar/salvar
+      // Use o ID do botão para acessá-lo. Ex: document.getElementById('btnAdicionarOuSalvarFilme').innerText = "Adicionar Filme";
+      document.getElementById('btnAdicionarOuSalvarFilme').innerText = "Adicionar Filme"; 
       idFilmeEditando = null; // Reseta o ID de edição
     } else {
       // Modo de adição: adiciona um novo documento
-      await addDoc(collection(db, "filmes"), filmeData); // 'collection' e 'addDoc' estão importados
+      await addDoc(collection(db, "filmes"), filmeData);
       console.log("Filme adicionado com sucesso!");
     }
-    carregarFilmes(); // Recarrega e exibe os filmes
-    limparCampos();   // Limpa o formulário
+    carregarFilmes();
+    limparCampos();
   } catch (error) {
     console.error("Erro ao salvar/atualizar o filme:", error);
     alert("Erro ao salvar/atualizar o filme no banco de dados. Verifique o console para mais detalhes.");
   }
 }
 
-// carregarFilmes também pode ser 'async' para usar await getDocs
 async function carregarFilmes() {
   try {
-    const filmesCollection = collection(db, "filmes"); // 'collection' está importada
-    const snapshot = await getDocs(filmesCollection); // 'getDocs' está importada
+    const filmesCollection = collection(db, "filmes");
+    const snapshot = await getDocs(filmesCollection);
     filmes = [];
     snapshot.forEach(doc => {
       const data = doc.data();
@@ -119,16 +123,18 @@ function exibirFilmes() {
     return;
   }
 
-  filmes.forEach((filme) => { // Removi o 'index' pois não é mais usado no checkbox
+  filmes.forEach((filme) => {
     const estrelas = '★'.repeat(filme.rating || 0) + '☆'.repeat(5 - (filme.rating || 0));
     container.innerHTML += `
       <div class="filme">
-        <h3><span class="math-inline">\{filme\.titulo\}</h3\>
+        <h3>${filme.titulo}</h3>
         <p>${filme.sinopse}</p>
-        <p><strong>Gêneros:</strong> ${filme.genero.join(', ')}</p>
+        <p><strong>Gêneros:</strong> ${filme.genero ? filme.genero.join(', ') : 'N/A'}</p> 
         <p><strong>Rating:</strong> ${estrelas}</p>
-        <imgsrc="{filme.capa}" alt="filme.titulo"onerror="this.onerror=null;this.src=′https://via.placeholder.com/150?text=Sem+Capa′;"><p><ahref="{filme.trailer}" target="_blank">Assistir Trailer</a></p>
-        <input type="checkbox" data-id="filme.id">Selecionar<buttononclick="window.editarFilme(′{filme.id}')">Editar</button>
+        <img src="${filme.capa}" alt="${filme.titulo}" onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=Sem+Capa';">
+        <p><a href="${filme.trailer}" target="_blank">Assistir Trailer</a></p>
+        <input type="checkbox" data-id="${filme.id}"> Selecionar
+        <button onclick="window.editarFilme('${filme.id}')">Editar</button>
         <button onclick="window.deletarFilme('${filme.id}')">Deletar</button>
       </div>
     `;
@@ -157,17 +163,21 @@ function limparCampos() {
   document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => c.checked = false);
   ratingSelecionado = 0;
   atualizarEstrelas();
+  // Se estiver editando, reseta o botão para "Adicionar Filme"
+  document.getElementById('btnAdicionarOuSalvarFilme').innerText = "Adicionar Filme"; 
+  idFilmeEditando = null;
 }
 
+// Lembre-se de importar 'writeBatch' no topo para esta função
 async function limparTodos() {
   if (confirm("Tem certeza que deseja DELETAR TODOS os filmes? Esta ação é irreversível!")) {
     try {
       const filmesCollection = collection(db, "filmes");
       const snapshot = await getDocs(filmesCollection);
-      const batch = writeBatch(db); // use writeBatch para operações em lote
+      const batch = writeBatch(db);
 
       snapshot.forEach(documento => {
-        batch.delete(doc(db, "filmes", documento.id)); // deleteDoc usa a referência do documento
+        batch.delete(doc(db, "filmes", documento.id));
       });
 
       await batch.commit();
@@ -184,7 +194,7 @@ async function limparTodos() {
 async function deletarFilme(id) {
   if (confirm("Tem certeza que deseja deletar este filme?")) {
     try {
-      await deleteDoc(doc(db, "filmes", id)); // 'deleteDoc' e 'doc' estão importados
+      await deleteDoc(doc(db, "filmes", id));
       console.log("Filme deletado com sucesso!");
       carregarFilmes();
     } catch (error) {
@@ -209,7 +219,8 @@ function editarFilme(id) {
     ratingSelecionado = filmeParaEditar.rating || 0;
     atualizarEstrelas();
 
-    document.querySelector('button[onclick="adicionarOuSalvarFilme()"]').innerText = "Salvar Alterações";
+    // Referência direta ao botão via ID
+    document.getElementById('btnAdicionarOuSalvarFilme').innerText = "Salvar Alterações";
     idFilmeEditando = id;
   }
 }
@@ -221,7 +232,7 @@ async function buscarFilmeOMDb() {
     return;
   }
 
-  const OMDb_API_KEY = "7a859aa5"; 
+  const OMDb_API_KEY = "7a859aa5";
 
   try {
     const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(titulo)}&apikey=${OMDb_API_KEY}`);
@@ -235,7 +246,7 @@ async function buscarFilmeOMDb() {
     document.getElementById('titulo').value = data.Title || "";
     document.getElementById('sinopse').value = data.Plot || "";
     document.getElementById('capa').value = data.Poster || "";
-    document.getElementById('trailer').value = "";
+    document.getElementById('trailer').value = ""; // OMDb não fornece trailer
 
     const generos = (data.Genre || "").split(',').map(g => g.trim());
     document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
@@ -243,6 +254,7 @@ async function buscarFilmeOMDb() {
     });
 
     const notaIMDb = parseFloat(data.imdbRating);
+    // Converte a nota IMDb (0-10) para seu sistema de 5 estrelas
     ratingSelecionado = isNaN(notaIMDb) ? 0 : Math.round(notaIMDb / 2);
     atualizarEstrelas();
   } catch (err) {
@@ -250,3 +262,13 @@ async function buscarFilmeOMDb() {
     alert("Erro ao buscar informações do filme. Verifique sua conexão ou a API Key.");
   }
 }
+
+// SOLUÇÃO PARA O ReferenceError para onclick:
+// Exporte as funções para o objeto 'window'.
+// Isso as torna acessíveis globalmente pelo HTML que usa onclick.
+window.editarFilme = editarFilme;
+window.deletarFilme = deletarFilme;
+// Note que as funções de ação principais (adicionar, buscar, limpar, sortear)
+// estão agora ligadas via addEventListener e NÃO precisam ser expostas globalmente.
+// Apenas as funções chamadas diretamente por elementos criados DINAMICAMENTE (como editar/deletar)
+// via 'onclick' precisam do 'window.funcao = funcao;'.
