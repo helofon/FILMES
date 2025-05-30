@@ -22,6 +22,7 @@ let idFilmeEditando = null; // Variável global para armazenar o ID do filme sen
 
 document.addEventListener("DOMContentLoaded", function () {
   carregarFilmes(); // Carrega os filmes ao iniciar a página
+ 
   document.querySelectorAll('.estrela').forEach(estrela => {
     estrela.addEventListener('click', () => {
       ratingSelecionado = parseInt(estrela.getAttribute('data-value'));
@@ -47,6 +48,12 @@ function atualizarEstrelas() {
     estrela.classList.toggle('selecionada', valor <= ratingSelecionado);
   });
 }
+  document.getElementById('btnBuscarOMDb').addEventListener('click', buscarFilmeOMDb);
+  document.getElementById('genero-toggle').addEventListener('click', toggleGenero);
+  document.getElementById('btnAdicionarOuSalvarFilme').addEventListener('click', adicionarOuSalvarFilme);
+  document.getElementById('btnLimparTodos').addEventListener('click', limparTodos);
+  document.getElementById('btnSortearFilme').addEventListener('click', sortearFilme);
+  document.getElementById('busca-genero').addEventListener('input', filtrarPorGenero);
 
 // A função adicionarOuSalvarFilme agora precisa ser 'async' para usar 'await' com addDoc/updateDoc
 async function adicionarOuSalvarFilme() {
@@ -116,15 +123,13 @@ function exibirFilmes() {
     const estrelas = '★'.repeat(filme.rating || 0) + '☆'.repeat(5 - (filme.rating || 0));
     container.innerHTML += `
       <div class="filme">
-        <h3>${filme.titulo}</h3>
+        <h3><span class="math-inline">\{filme\.titulo\}</h3\>
         <p>${filme.sinopse}</p>
         <p><strong>Gêneros:</strong> ${filme.genero.join(', ')}</p>
         <p><strong>Rating:</strong> ${estrelas}</p>
-        <img src="${filme.capa}" alt="${filme.titulo}" onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=Sem+Capa';">
-        <p><a href="${filme.trailer}" target="_blank">Assistir Trailer</a></p>
-        <input type="checkbox" data-id="${filme.id}"> Selecionar
-        <button onclick="editarFilme('${filme.id}')">Editar</button>
-        <button onclick="deletarFilme('${filme.id}')">Deletar</button>
+        <imgsrc="{filme.capa}" alt="filme.titulo"onerror="this.onerror=null;this.src=′https://via.placeholder.com/150?text=Sem+Capa′;"><p><ahref="{filme.trailer}" target="_blank">Assistir Trailer</a></p>
+        <input type="checkbox" data-id="filme.id">Selecionar<buttononclick="window.editarFilme(′{filme.id}')">Editar</button>
+        <button onclick="window.deletarFilme('${filme.id}')">Deletar</button>
       </div>
     `;
   });
