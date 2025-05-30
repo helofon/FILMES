@@ -125,11 +125,12 @@ function exibirFilmes() {
 
   filmes.forEach((filme) => {
     const estrelas = '★'.repeat(filme.rating || 0) + '☆'.repeat(5 - (filme.rating || 0));
+    const generosFormatados = Array.isArray(filme.genero) ? filme.genero.join(', ') : 'N/A';
     container.innerHTML += `
       <div class="filme">
         <h3>${filme.titulo}</h3>
         <p>${filme.sinopse}</p>
-        <p><strong>Gêneros:</strong> ${filme.genero ? filme.genero.join(', ') : 'N/A'}</p> 
+        <p><strong>Gêneros:</strong> ${generosFormatados}</p> 
         <p><strong>Rating:</strong> ${estrelas}</p>
         <img src="${filme.capa}" alt="${filme.titulo}" onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=Sem+Capa';">
         <p><a href="${filme.trailer}" target="_blank">Assistir Trailer</a></p>
