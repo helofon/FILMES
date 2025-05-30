@@ -19,6 +19,7 @@ h1 {
 
 h2 {
   font-family: 'Chalkduster', Monaco, fantasy;
+  text-align: center;
   color: #6b3fa0;
 }
 
@@ -158,6 +159,10 @@ input[type="checkbox"] {
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
+#busca-genero{
+  text-align: center;
+  margin: 0 auto;
+}
 .oculto {
   display: none;
 }
