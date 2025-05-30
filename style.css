@@ -17,7 +17,7 @@ h2 {
   color: #6b3fa0;
 }
 
-input[type="text"] {
+input[type="text"], textarea {
   padding: 10px;
   margin: 8px 5px;
   border: 1px solid #caa6f2;
