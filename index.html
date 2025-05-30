@@ -13,12 +13,10 @@
 
   <div>
     <input type="text" id="titulo" placeholder="Título do Filme">
-    <button onclick="buscarFilmeOMDb()">Buscar no IMDb</button>
     
     <input type="text" id="sinopse" placeholder="Sinopse">
 
     <div id="genero-container">
-      <div id="genero-toggle" onclick="toggleGenero()">Selecionar Gêneros ⬇</div>
       <div id="genero-opcoes" class="oculto">
         <label><input type="checkbox" value="Ação"> Ação</label><br>
         <label><input type="checkbox" value="Comédia"> Comédia</label><br>
@@ -45,16 +43,11 @@
       <span class="estrela" data-value="5">&#9734;</span>
     </div>
 
-    <button onclick="adicionarOuSalvarFilme()">Adicionar Filme</button>
-    <button onclick="limparTodos()">Limpar Todos os Filmes</button>
   </div>
-
-  <input type="text" id="busca-genero" placeholder="Filtrar por gênero..." oninput="filtrarPorGenero()" />
   
   <div id="filmes-container"></div>
 
   <h2>SORTEADOR</h2>
-  <button onclick="sortearFilme()">Sortear Filme</button>
   <div id="resultado"></div>
 
     <script type="module" src="script.js"></script>
