@@ -91,9 +91,9 @@ async function adicionarOuSalvarFilme() {
         capa,
         trailer,
         rating: ratingSelecionado,
-        ano: ano // Adiciona o ano ao objeto de dados
+        ano: ano, // Adiciona o ano ao objeto de dados
         duracao: duracao
-    };
+    }
 
     try {
         if (idFilmeEditando) {
