@@ -318,7 +318,7 @@ async function buscarFilmeOMDb() {
         document.getElementById('capa').value = data.Poster || "";
         document.getElementById('trailer').value = ""; // OMDb não fornece trailer
         document.getElementById('ano').value = data.Year || ""; // Preenche o ano do OMDb
-        document.getElementById('duracao').value = data.Runtime ||
+        document.getElementById('duracao').value = data.Runtime ||;
         
         const generos = (data.Genre || "").split(',').map(g => g.trim()).filter(g => g !== '');
         document.querySelectorAll('#genero-opcoes input[type="checkbox"]').forEach(c => {
