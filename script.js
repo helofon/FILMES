@@ -71,6 +71,7 @@ async function adicionarOuSalvarFilme() {
     const generoCheckboxes = document.querySelectorAll('#genero-opcoes input[type="checkbox"]');
     const generosSelecionados = Array.from(generoCheckboxes).filter(c => c.checked).map(c => c.value);
     const ano = document.getElementById('ano').value.trim(); // Captura o ano
+    const duracao = document.getElementById('duracao').value.trim();
 
     if (!titulo) {
         alert("O título do filme é obrigatório!");
@@ -91,6 +92,7 @@ async function adicionarOuSalvarFilme() {
         trailer,
         rating: ratingSelecionado,
         ano: ano // Adiciona o ano ao objeto de dados
+        duracao: duracao
     };
 
     try {
@@ -149,6 +151,7 @@ function exibirFilmes(listaParaExibir = filmes) {
         const estrelas = '★'.repeat(filme.rating || 0) + '☆'.repeat(5 - (filme.rating || 0));
         const generosFormatados = Array.isArray(filme.genero) ? filme.genero.join(', ') : 'N/A';
         const anoFilme = filme.ano ? ` (${filme.ano})` : ''; // Adiciona o ano ao título se existir
+        const duracaoFilme = filme.duracao ? `<p><strong>Duração:</strong> ${filme.duracao}</p>` : '';
 
         const videoId = getYouTubeVideoId(filme.trailer);
         let trailerContent = '';
@@ -176,11 +179,12 @@ function exibirFilmes(listaParaExibir = filmes) {
         
         container.innerHTML += `
             <div class="filme">
-                <h3>${filme.titulo}${anoFilme}</h3> 
-                <p>${filme.sinopse}</p>
-                <p><strong>Gêneros:</strong> ${generosFormatados}</p>
-                <p><strong>Rating:</strong> ${estrelas}</p>
+                <h3>${filme.titulo}${anoFilme} </h3> 
                 <img src="${filme.capa}" alt="${filme.titulo}" onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=Sem+Capa';">
+                <p><strong>Gêneros:</strong> ${generosFormatados}</p>
+                <p>${filme.sinopse}</p>
+                <p>${duracaoFilme} <strong>Rating:</strong> ${estrelas}</p>
+                
                 ${trailerContent}
                 <input type="checkbox" data-id="${filme.id}"> Selecionar
                 <button onclick="window.editarFilme('${filme.id}')">Editar</button>
