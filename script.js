@@ -9,12 +9,10 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-const app = initializeApp(firebaseConfig);
 
 let filmes = [];
 let ratingSelecionado = 0;
 
-// Estrelas
 document.addEventListener("DOMContentLoaded", function () {
   carregarFilmes();
   document.querySelectorAll('.estrela').forEach(estrela => {
@@ -60,26 +58,17 @@ function adicionarOuSalvarFilme() {
     rating: ratingSelecionado
   };
 
-  db.collection("filmes").add(filme)
+   db.collection("filmes").add(filme) // Use esta forma
     .then(() => {
       console.log("Filme adicionado com sucesso!");
-      carregarFilmes();
+      carregarFilmes(); // Carrega e exibe os filmes atualizados
+      limparCampos();   // Limpa os campos após adicionar
     })
     .catch((error) => {
       console.error("Erro ao salvar o filme:", error);
+      alert("Erro ao salvar o filme no banco de dados."); // Alerta o usuário
     });
-
-  try {
-    const filmesCollection = collection(db, "filmes");
-    await addDoc(filmesCollection, filme);
-    carregarFilmes();
-    limparCampos();
-  } catch (err) {
-    console.error("Erro ao salvar filme:", err);
-    alert("Erro ao salvar o filme no banco de dados.");
-  }
 }
-
 
 function carregarFilmes() {
   db.collection("filmes").get().then(snapshot => {
@@ -91,8 +80,9 @@ function carregarFilmes() {
     });
     exibirFilmes();
   });
-}
-  exibirFilmes();
+    .catch(error => { // Adicione um .catch para tratar erros de carregamento
+    console.error("Erro ao carregar filmes:", error);
+  });
 }
 
 function exibirFilmes() {
@@ -195,4 +185,26 @@ function buscarFilmeOMDb() {
       console.error("Erro ao buscar filme:", err);
       alert("Erro ao buscar informações do filme.");
     });
+}
+
+function limparTodos() {
+    if (confirm("Tem certeza que deseja DELETAR TODOS os filmes? Esta ação é irreversível!")) {
+        db.collection("filmes").get()
+            .then(snapshot => {
+                const batch = db.batch(); // Usar batch para deletar múltiplos documentos
+                snapshot.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                return batch.commit();
+            })
+            .then(() => {
+                console.log("Todos os filmes foram deletados!");
+                carregarFilmes(); // Recarregar a lista para mostrar que está vazia
+                alert("Todos os filmes foram removidos com sucesso!");
+            })
+            .catch(error => {
+                console.error("Erro ao deletar todos os filmes:", error);
+                alert("Erro ao tentar remover todos os filmes.");
+            });
+    }
 }
