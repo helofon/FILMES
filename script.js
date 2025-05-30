@@ -3,12 +3,12 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.19.1/firebas
 import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAsjk8k0wS-CtyyDTUhtfvwznu1EhrITWk",
-    authDomain: "site-filmes-a8770.firebaseapp.com",
-    projectId: "site-filmes-a8770",
-    storageBucket: "site-filmes-a8770.firebasestorage.app",
-    messagingSenderId: "6675724716",
-    appId: "1:6675724716:web:279205a26c9312e8bc6209"
+  apiKey: "AIzaSyAsjk8k0wS-CtyyDTUhtfvwznu1EhrITWk",
+  authDomain: "site-filmes-a8770.firebaseapp.com",
+  projectId: "site-filmes-a8770",
+  storageBucket: "site-filmes-a8770.firebasestorage.app",
+  messagingSenderId: "6675724716",
+  appId: "1:6675724716:web:279205a26c9312e8bc6209"
 };
 
 const app = initializeApp(firebaseConfig);
