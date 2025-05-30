@@ -1,67 +1,62 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Site de Filmes</title>
-  <link rel="stylesheet" href="style.css">
- 
-  <!-- Firebase App (para inicializar o Firebase) -->
-  <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js"></script>
-  <!-- Firebase Firestore -->
-  <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js"></script>
-
-</head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Site de Filmes</title>
+  <link rel="stylesheet" href="style.css">
+ 
+      </head>
 <body>
 
-  <h1>NOSSOS FILMES</h1>
+  <h1>NOSSOS FILMES</h1>
 
-  <div>
-    <input type="text" id="titulo" placeholder="Título do Filme">
-    <button onclick="buscarFilmeOMDb()">Buscar no IMDb</button>
-    
-    <input type="text" id="sinopse" placeholder="Sinopse">
+  <div>
+    <input type="text" id="titulo" placeholder="Título do Filme">
+    <button onclick="buscarFilmeOMDb()">Buscar no IMDb</button>
+    
+    <input type="text" id="sinopse" placeholder="Sinopse">
 
-    <div id="genero-container">
-      <div id="genero-toggle" onclick="toggleGenero()">Selecionar Gêneros ⬇</div>
-      <div id="genero-opcoes" class="oculto">
-        <label><input type="checkbox" value="Ação"> Ação</label><br>
-        <label><input type="checkbox" value="Comédia"> Comédia</label><br>
-        <label><input type="checkbox" value="Drama"> Drama</label><br>
-        <label><input type="checkbox" value="Terror"> Terror</label><br>
-        <label><input type="checkbox" value="Romance"> Romance</label><br>
-        <label><input type="checkbox" value="Animação"> Animação</label><br>
-        <label><input type="checkbox" value="Infantil"> Infantil</label><br>
-        <label><input type="checkbox" value="Ficção Científica"> Ficção Científica</label><br>
-        <label><input type="checkbox" value="Familia"> Familia</label><br>
-        <label><input type="checkbox" value="Documentário"> Documentário</label>
-      </div>
-    </div>
+    <div id="genero-container">
+      <div id="genero-toggle" onclick="toggleGenero()">Selecionar Gêneros ⬇</div>
+      <div id="genero-opcoes" class="oculto">
+        <label><input type="checkbox" value="Ação"> Ação</label><br>
+        <label><input type="checkbox" value="Comédia"> Comédia</label><br>
+        <label><input type="checkbox" value="Drama"> Drama</label><br>
+        <label><input type="checkbox" value="Terror"> Terror</label><br>
+        <label><input type="checkbox" value="Romance"> Romance</label><br>
+        <label><input type="checkbox" value="Animação"> Animação</label><br>
+        <label><input type="checkbox" value="Infantil"> Infantil</label><br>
+        <label><input type="checkbox" value="Ficção Científica"> Ficção Científica</label><br>
+        <label><input type="checkbox" value="Familia"> Familia</label><br>
+        <label><input type="checkbox" value="Documentário"> Documentário</label>
+      </div>
+    </div>
 
-    <input type="text" id="capa" placeholder="URL da Capa">
-    <input type="text" id="trailer" placeholder="URL do Trailer do YouTube">
+    <input type="text" id="capa" placeholder="URL da Capa">
+    <input type="text" id="trailer" placeholder="URL do Trailer do YouTube">
 
-    <div id="rating-container">
-      Avaliação:
-      <span class="estrela" data-value="1">&#9734;</span>
-      <span class="estrela" data-value="2">&#9734;</span>
-      <span class="estrela" data-value="3">&#9734;</span>
-      <span class="estrela" data-value="4">&#9734;</span>
-      <span class="estrela" data-value="5">&#9734;</span>
-    </div>
+    <div id="rating-container">
+      Avaliação:
+      <span class="estrela" data-value="1">&#9734;</span>
+      <span class="estrela" data-value="2">&#9734;</span>
+      <span class="estrela" data-value="3">&#9734;</span>
+      <span class="estrela" data-value="4">&#9734;</span>
+      <span class="estrela" data-value="5">&#9734;</span>
+    </div>
 
-    <button onclick="adicionarOuSalvarFilme()">Adicionar Filme</button>
-    <button onclick="limparTodos()">Limpar Todos os Filmes</button>
-  </div>
+    <button onclick="adicionarOuSalvarFilme()">Adicionar Filme</button>
+    <button onclick="limparTodos()">Limpar Todos os Filmes</button>
+  </div>
 
-  <input type="text" id="busca-genero" placeholder="Filtrar por gênero..." oninput="filtrarPorGenero()" />
-  
-  <div id="filmes-container"></div>
+  <input type="text" id="busca-genero" placeholder="Filtrar por gênero..." oninput="filtrarPorGenero()" />
+  
+  <div id="filmes-container"></div>
 
-  <h2>SORTEADOR</h2>
-  <button onclick="sortearFilme()">Sortear Filme</button>
-  <div id="resultado"></div>
+  <h2>SORTEADOR</h2>
+  <button onclick="sortearFilme()">Sortear Filme</button>
+  <div id="resultado"></div>
 
-  <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
