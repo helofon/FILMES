@@ -18,7 +18,6 @@ h2 {
 }
 
 input[type="text"], select {
-  max-width: 300px;
   padding: 10px;
   margin: 8px 5px;
   border: 1px solid #caa6f2;
