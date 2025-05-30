@@ -27,20 +27,22 @@ input[type="text"], select {
   box-sizing: border-box;
 }
 
-h3 {
+#titulo {
   width: 300px;
 }
-h4 {
+#ano {
+  width: 100px;
+}
+#sinopse {
   width: 700px;
   height: 50 px
 }
-h5 {
+#genero {
   width: 300px;
-}
-h6 {
+#capa {
   width: 500px;
 }
-h7 {
+#trailer {
   width: 500px;
 }
 
