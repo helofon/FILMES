@@ -38,6 +38,7 @@ input[type="text"], textarea {
 }
 #sinopse {
   width: 670px;
+  max-width: 100%
 }
 #genero {
   width: 200px;
