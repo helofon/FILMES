@@ -93,7 +93,7 @@ async function adicionarOuSalvarFilme() {
         rating: ratingSelecionado,
         ano: ano, // Adiciona o ano ao objeto de dados
         duracao: duracao
-    }
+    };
 
     try {
         if (idFilmeEditando) {
