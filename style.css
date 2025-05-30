@@ -37,17 +37,17 @@ input[type="text"] {
   width: 100px;
 }
 #sinopse {
-  width: 700px;
-  height: 100px
+  width: 680px;
+  resize: vertical;
 }
 #genero {
   width: 300px;
 }
 #capa {
-  width: 340px;
+  width: 330px;
 }
 #trailer {
-  width: 340px;
+  width: 330px;
 }
 
 select {
