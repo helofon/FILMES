@@ -35,10 +35,11 @@ input[type="text"] {
 }
 #sinopse {
   width: 700px;
-  height: 50 px
+  height: 50px
 }
 #genero {
   width: 300px;
+}
 #capa {
   width: 500px;
 }
@@ -117,7 +118,7 @@ input[type="checkbox"] {
 
 #genero-container {
   position: relative;
-  max-width: 500px;
+  width: 500px;
   margin: 10px 5px;
 }
 
